@@ -1,0 +1,36 @@
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# MLflow local artifacts
+mlruns/
+
+# Large model files (if saved locally)
+models/*.pkl
+models/*.joblib
+
+# Logs
+*.log
+
+# Environment variables
+.env
+
+# DVC cache (very important)
+.dvc/cache/
