@@ -1,4 +1,5 @@
 # src/train_mlflow.py
+
 import os
 import joblib
 import pandas as pd
@@ -10,7 +11,9 @@ from sklearn.metrics import accuracy_score, recall_score, f1_score, roc_auc_scor
 from sklearn.model_selection import train_test_split
 
 
-# Helper function for versioning
+# -----------------------------
+# Helper function for model versioning
+# -----------------------------
 def get_next_model_version(model_name="IDS_XGBoost_Model"):
     os.makedirs("models", exist_ok=True)
 
@@ -30,12 +33,16 @@ def get_next_model_version(model_name="IDS_XGBoost_Model"):
     return max(versions) + 1
 
 
+# -----------------------------
 # Paths to Dataset
+# -----------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 TRAIN_PATH = BASE_DIR / "data" / "processed" / "train_selected.csv"
 
 
+# -----------------------------
 # Loading Dataset
+# -----------------------------
 print("Loading dataset...")
 
 df = pd.read_csv(TRAIN_PATH)
@@ -44,13 +51,17 @@ X = df.drop(columns=["label"])
 y = df["label"]
 
 
+# -----------------------------
 # Train-Val Split
+# -----------------------------
 X_train, X_val, y_train, y_val = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
 
 
+# -----------------------------
 # Starting MLflow Experiment
+# -----------------------------
 mlflow.set_experiment("IDS_XGBoost_Experiment")
 
 with mlflow.start_run():
@@ -70,11 +81,15 @@ with mlflow.start_run():
 
     model.fit(X_train, y_train)
 
-    # Predict
+    # -----------------------------
+    # Predictions
+    # -----------------------------
     y_pred = model.predict(X_val)
     y_prob = model.predict_proba(X_val)[:, 1]
 
-    # Eval Metrics
+    # -----------------------------
+    # Evaluation Metrics
+    # -----------------------------
     accuracy = accuracy_score(y_val, y_pred)
     recall = recall_score(y_val, y_pred)
     f1 = f1_score(y_val, y_pred)
@@ -85,26 +100,34 @@ with mlflow.start_run():
     print("F1:", f1)
     print("ROC-AUC:", roc_auc)
 
+    # -----------------------------
     # Log Parameters
+    # -----------------------------
     mlflow.log_param("model_type", "XGBoost")
     mlflow.log_param("n_estimators", 200)
     mlflow.log_param("max_depth", 6)
     mlflow.log_param("learning_rate", 0.1)
 
+    # -----------------------------
     # Log Metrics
+    # -----------------------------
     mlflow.log_metric("accuracy", accuracy)
     mlflow.log_metric("recall", recall)
     mlflow.log_metric("f1_score", f1)
     mlflow.log_metric("roc_auc", roc_auc)
 
-    # Model Logging to MLflow
+    # -----------------------------
+    # Log model to MLflow registry
+    # -----------------------------
     mlflow.xgboost.log_model(
         model,
         artifact_path="model",
         registered_model_name="IDS_XGBoost_Model"
     )
 
-    # Save Model Locally with Version
+    # -----------------------------
+    # Save model locally with version
+    # -----------------------------
     version = get_next_model_version("IDS_XGBoost_Model")
 
     model_filename = f"IDS_XGBoost_Model_v{version}.pkl"
@@ -113,6 +136,23 @@ with mlflow.start_run():
     joblib.dump(model, model_path)
 
     print(f"Model saved locally as: {model_filename}")
+
+    # -----------------------------
+    # Create CI metrics summary
+    # -----------------------------
+    metrics_text = f"""
+## Model Performance Summary
+
+| Metric | Value |
+|------|------|
+| Accuracy | {accuracy:.4f} |
+| Recall | {recall:.4f} |
+| F1 Score | {f1:.4f} |
+| ROC-AUC | {roc_auc:.4f} |
+"""
+
+    with open("metrics_summary.md", "w") as f:
+        f.write(metrics_text)
 
 
 print("Training complete. Model logged to MLflow.")
