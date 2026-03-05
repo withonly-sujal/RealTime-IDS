@@ -3,7 +3,7 @@ name: IDS Model Training Pipeline
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   train-model:
