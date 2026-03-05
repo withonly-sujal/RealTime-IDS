@@ -19,9 +19,6 @@ Thumbs.db
 # Jupyter notebooks checkpoints
 .ipynb_checkpoints/
 
-# MLflow local artifacts
-mlruns/
-
 # Large model files (if saved locally)
 models/*.pkl
 models/*.joblib
@@ -34,3 +31,10 @@ models/*.joblib
 
 # DVC cache (very important)
 .dvc/cache/
+
+# MLflow
+mlruns/
+mlflow.db
+
+# Models
+models/
