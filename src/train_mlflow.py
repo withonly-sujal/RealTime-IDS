@@ -1,5 +1,6 @@
 # src/train_mlflow.py
-
+import os
+import joblib
 import pandas as pd
 import mlflow
 import mlflow.xgboost
@@ -9,11 +10,32 @@ from sklearn.metrics import accuracy_score, recall_score, f1_score, roc_auc_scor
 from sklearn.model_selection import train_test_split
 
 
-# Paths to DS
+# Helper function for versioning
+def get_next_model_version(model_name="IDS_XGBoost_Model"):
+    os.makedirs("models", exist_ok=True)
+
+    versions = []
+
+    for file in os.listdir("models"):
+        if file.startswith(model_name) and file.endswith(".pkl"):
+            try:
+                v = int(file.split("_v")[-1].replace(".pkl", ""))
+                versions.append(v)
+            except:
+                pass
+
+    if len(versions) == 0:
+        return 1
+
+    return max(versions) + 1
+
+
+# Paths to Dataset
 BASE_DIR = Path(__file__).resolve().parent.parent
 TRAIN_PATH = BASE_DIR / "data" / "processed" / "train_selected.csv"
 
-# Loading DS
+
+# Loading Dataset
 print("Loading dataset...")
 
 df = pd.read_csv(TRAIN_PATH)
@@ -75,12 +97,22 @@ with mlflow.start_run():
     mlflow.log_metric("f1_score", f1)
     mlflow.log_metric("roc_auc", roc_auc)
 
-
-# Model Logging
+    # Model Logging to MLflow
     mlflow.xgboost.log_model(
         model,
         artifact_path="model",
         registered_model_name="IDS_XGBoost_Model"
     )
+
+    # Save Model Locally with Version
+    version = get_next_model_version("IDS_XGBoost_Model")
+
+    model_filename = f"IDS_XGBoost_Model_v{version}.pkl"
+    model_path = os.path.join("models", model_filename)
+
+    joblib.dump(model, model_path)
+
+    print(f"Model saved locally as: {model_filename}")
+
 
 print("Training complete. Model logged to MLflow.")

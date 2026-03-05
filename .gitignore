@@ -35,6 +35,7 @@ models/*.joblib
 # MLflow
 mlruns/
 mlflow.db
+mlflow.db/
 
 # Models
 models/
