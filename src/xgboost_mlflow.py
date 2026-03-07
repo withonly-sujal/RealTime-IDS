@@ -1,4 +1,3 @@
-# src/train_mlflow.py
 import os
 import joblib
 import pandas as pd
@@ -8,7 +7,6 @@ from pathlib import Path
 from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score, recall_score, f1_score, roc_auc_score
 from sklearn.model_selection import train_test_split
-
 
 
 # Helper function for model versioning
@@ -31,12 +29,12 @@ def get_next_model_version(model_name="IDS_XGBoost_Model"):
     return max(versions) + 1
 
 
-# Paths to Dataset
+# Dataset Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 TRAIN_PATH = BASE_DIR / "data" / "processed" / "train_selected.csv"
 
 
-# Loading Dataset
+# Load Dataset
 print("Loading dataset...")
 
 df = pd.read_csv(TRAIN_PATH)
@@ -51,7 +49,7 @@ X_train, X_val, y_train, y_val = train_test_split(
 )
 
 
-# Starting MLflow Experiment
+# MLflow Experiment
 mlflow.set_experiment("IDS_XGBoost_Experiment")
 
 with mlflow.start_run():
@@ -71,12 +69,12 @@ with mlflow.start_run():
 
     model.fit(X_train, y_train)
 
-    
+
     # Predictions
     y_pred = model.predict(X_val)
     y_prob = model.predict_proba(X_val)[:, 1]
 
-    
+
     # Evaluation Metrics
     accuracy = accuracy_score(y_val, y_pred)
     recall = recall_score(y_val, y_pred)
@@ -88,29 +86,28 @@ with mlflow.start_run():
     print("F1:", f1)
     print("ROC-AUC:", roc_auc)
 
-    
+
     # Log Parameters
     mlflow.log_param("model_type", "XGBoost")
     mlflow.log_param("n_estimators", 200)
     mlflow.log_param("max_depth", 6)
     mlflow.log_param("learning_rate", 0.1)
 
-    
+
     # Log Metrics
     mlflow.log_metric("accuracy", accuracy)
     mlflow.log_metric("recall", recall)
     mlflow.log_metric("f1_score", f1)
     mlflow.log_metric("roc_auc", roc_auc)
 
-    
-    # Log model to MLflow registry
+
+    # Log model to MLflow Registry
     mlflow.xgboost.log_model(
         model,
         artifact_path="model",
         registered_model_name="IDS_XGBoost_Model"
     )
 
-    
     # Save model locally with version
     version = get_next_model_version("IDS_XGBoost_Model")
 
@@ -120,22 +117,5 @@ with mlflow.start_run():
     joblib.dump(model, model_path)
 
     print(f"Model saved locally as: {model_filename}")
-
-    
-    # Create CI metrics summary
-    metrics_text = f"""
-## Model Performance Summary
-
-| Metric | Value |
-|------|------|
-| Accuracy | {accuracy:.4f} |
-| Recall | {recall:.4f} |
-| F1 Score | {f1:.4f} |
-| ROC-AUC | {roc_auc:.4f} |
-"""
-
-    with open("metrics_summary.md", "w") as f:
-        f.write(metrics_text)
-
 
 print("Training complete. Model logged to MLflow.")
