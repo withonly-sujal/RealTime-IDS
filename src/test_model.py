@@ -1,10 +1,13 @@
-# src/test_model.py
+# This is purely Testing script to evaluate the trained model (.pkl files) on the dedicated test-set and log results to MLflow. 
+# It is not meant for training or any other purpose.
+# To use only change the model (.pkl file) path and run)
+# If want to use different test-set just change TEST_PATH variable to point to the new test-set.
+
 import argparse
 import joblib
 import pandas as pd
 import mlflow
 from pathlib import Path
-
 from sklearn.metrics import (
     accuracy_score,
     precision_score,
@@ -13,7 +16,6 @@ from sklearn.metrics import (
     roc_auc_score,
     confusion_matrix
 )
-
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(description="Test IDS Model")
@@ -30,7 +32,7 @@ MODEL_PATH = args.model
 
 # Dataset Path
 BASE_DIR = Path(__file__).resolve().parent.parent
-TEST_PATH = BASE_DIR / "data" / "processed" / "test_selected.csv"
+TEST_PATH = BASE_DIR / "data" / "processed" / "test_processed.csv"
 
 # Load model
 print("Loading model...")
@@ -67,20 +69,30 @@ print("Precision:", precision)
 print("Recall   :", recall)
 print("F1 Score :", f1)
 print("ROC-AUC  :", roc_auc)
-print("\nConfusion Matrix:")
-print(cm)
-
+print("\nConfusion Matrix:\n", cm)
 
 
 # MLflow Logging
 mlflow.set_experiment("IDS_Model_Testing")
 with mlflow.start_run():
+    
+    # Log Parameters
     mlflow.log_param("model_path", MODEL_PATH)
     mlflow.log_param("model_type", "XGBoost")
-    mlflow.log_param("dataset", "test_selected.csv")
+    mlflow.log_param("dataset", TEST_PATH.name)
+    
+    # log Metrics
     mlflow.log_metric("accuracy", accuracy)
     mlflow.log_metric("precision", precision)
     mlflow.log_metric("recall", recall) 
     mlflow.log_metric("f1_score", f1)
     mlflow.log_metric("roc_auc", roc_auc)
+    
+    # Log confusion matrix values
+    tn, fp, fn, tp = cm.ravel()
+    mlflow.log_metric("TN", tn)
+    mlflow.log_metric("FP", fp)
+    mlflow.log_metric("FN", fn)
+    mlflow.log_metric("TP", tp)
+    
 print("\nTest results logged to MLflow.")
