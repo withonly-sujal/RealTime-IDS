@@ -36,7 +36,7 @@ def get_next_model_version(model_name="IDS_XGBoost_Model"):
 
 # Dataset Path
 BASE_DIR = Path(__file__).resolve().parent.parent
-TRAIN_PATH = BASE_DIR / "data" / "processed" / "train_processed.csv"
+TRAIN_PATH = BASE_DIR / "data" / "processed" / "train_selected_balanced.csv" # change the training dataset here
 
 # Load Dataset
 print("Loading dataset...")
@@ -55,7 +55,7 @@ X_train, X_val, y_train, y_val = train_test_split(
 # MLflow Experiment
 # This is where it all starts with MLFlow. We set up an experiment and log everything here
 
-mlflow.set_experiment("IDS_XGBoost_Experiment")
+mlflow.set_experiment("IDS_XGBoost_Model_Experiment")
 with mlflow.start_run():
     print("Training XGBoost model...")
 
@@ -67,7 +67,9 @@ with mlflow.start_run():
         colsample_bytree=0.8,
         eval_metric="logloss",
         random_state=42,
-        n_jobs=-1
+        n_jobs=-1,
+        # scale pos_weight can be added here if needed for imbalanced datasets
+        #scale_pos_weight=0.47
     )
 
     model.fit(X_train, y_train)
@@ -104,7 +106,7 @@ with mlflow.start_run():
     mlflow.log_param("n_jobs", model.get_params()["n_jobs"])
     
     # Log scale_pos_weight if it exists (for imbalanced datasets)
-    mlflow.log_param("scale_pos_weight", model.get_params().get("scale_pos_weight", "None"))
+    #mlflow.log_param("scale_pos_weight", model.get_params().get("scale_pos_weight", "None"))
     # Log Dataset Used
     mlflow.log_param("dataset", TRAIN_PATH.name)
 

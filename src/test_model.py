@@ -32,7 +32,7 @@ MODEL_PATH = args.model
 
 # Dataset Path
 BASE_DIR = Path(__file__).resolve().parent.parent
-TEST_PATH = BASE_DIR / "data" / "processed" / "test_processed.csv"
+TEST_PATH = BASE_DIR / "data" / "processed" / "test_selected.csv"
 
 # Load model
 print("Loading model...")
@@ -73,7 +73,7 @@ print("\nConfusion Matrix:\n", cm)
 
 
 # MLflow Logging
-mlflow.set_experiment("IDS_Model_Testing")
+mlflow.set_experiment("IDS_All_Model_Testing")
 with mlflow.start_run():
     
     # Log Parameters

@@ -52,7 +52,7 @@ X_train, X_val, y_train, y_val = train_test_split(
 
 
 # Starting MLflow Experiment
-mlflow.set_experiment("IDS_XGBoost_Experiment")
+mlflow.set_experiment("IDS_XGBoost_Model_Experiment")
 
 with mlflow.start_run():
 
