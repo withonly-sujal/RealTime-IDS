@@ -46,7 +46,7 @@ jobs:
       # Train model
       - name: Train Model
         run: |
-          python src/train_mlflow.py
+          python src/mlp_mlflow.py
 
       # Show model performance summary
       - name: Add metrics to GitHub Summary
