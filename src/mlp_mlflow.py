@@ -45,7 +45,7 @@ def get_next_model_version(model_name="IDS_MLP_Model"):
 
 # Dataset Path
 BASE_DIR = Path(__file__).resolve().parent.parent
-TRAIN_PATH = BASE_DIR / "data" / "processed" / "train_processed.csv"  # change dataset here
+TRAIN_PATH = BASE_DIR / "data" / "processed" / "train_selected_balanced.csv"  # change dataset here
 
 
 # Load Dataset
@@ -235,7 +235,10 @@ with mlflow.start_run():
     model_filename = f"IDS_MLP_Model_v{version}.pkl"
     model_path = os.path.join("models", model_filename)
 
-    joblib.dump(model, model_path)
+    joblib.dump({
+    "model": model,
+    "scaler": scaler
+    }, model_path)
 
     print(f"Model saved locally as: {model_filename}")
 
