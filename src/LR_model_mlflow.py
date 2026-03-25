@@ -170,6 +170,9 @@ os.makedirs(BASE_DIR / "models", exist_ok=True)
 
 final_model_path = BASE_DIR / "models" / "IDS_Stacking_LogisticRegression.pkl"
 
+features_proc = X_train_proc.columns.tolist()
+features_sel = X_train_sel.columns.tolist()
+
 joblib.dump({
     "meta_model": meta_model,
     "xgb_proc": xgb_proc,
@@ -177,7 +180,9 @@ joblib.dump({
     "mlp_proc": mlp_proc,
     "mlp_sel": mlp_sel,
     "scaler_proc": scaler_proc,
-    "scaler_sel": scaler_sel
+    "scaler_sel": scaler_sel,
+    "features_proc": features_proc,
+    "features_sel": features_sel
 }, final_model_path)
 
 print(f"\nFinal stacking model saved at: {final_model_path}")
