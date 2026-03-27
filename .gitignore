@@ -39,3 +39,6 @@ mlflow.db/
 
 # Models
 models/
+
+# Inference results
+inference_pipeline_results/

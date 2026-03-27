@@ -7,7 +7,7 @@ import pathlib as path
 BASE_DIR = path.Path(__file__).resolve().parent.parent
 
 MODEL_PATH = BASE_DIR / "models" / "IDS_Stacking_LogisticRegression.pkl"
-INPUT_PATH = BASE_DIR / "data" / "processed" / "test_selected.csv"
+INPUT_PATH = BASE_DIR / "data" / "processed" / "test_processed.csv"
 
 # LOAD MODEL
 print("Loading model...")
@@ -29,7 +29,7 @@ scaler_sel = loaded["scaler_sel"]
 features_proc = loaded["features_proc"]
 features_sel = loaded["features_sel"]
 
-print("Model loaded successfully ✅")
+print("Model loaded successfully")
 
 
 # LOAD INPUT DATA
@@ -107,7 +107,7 @@ print(results.head())
 
 
 # Save results
-OUTPUT_PATH = "predictions.csv"
+OUTPUT_PATH = BASE_DIR / "results" / "predictions.csv"
 results.to_csv(OUTPUT_PATH, index=False)
 
 print(f"\nResults saved to {OUTPUT_PATH}")
