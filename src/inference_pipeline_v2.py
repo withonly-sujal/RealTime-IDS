@@ -93,7 +93,7 @@ print("Running stacking model...")
 
 y_prob = meta_model.predict_proba(stack_input)[:, 1]
 
-threshold = 0.5
+threshold = 0.4
 y_pred = (y_prob > threshold).astype(int)
 
 
@@ -105,7 +105,7 @@ results = pd.DataFrame({
     "Probability": y_prob
 })
 
-OUTPUT_PATH = BASE_DIR / "results" / "predictions_with_labels.csv"
+OUTPUT_PATH = BASE_DIR / "inference_pipeline_results" / "predictions_with_labels_balanced_DS_1.csv"
 results.to_csv(OUTPUT_PATH, index=False)
 
 print("\nSample Predictions:")

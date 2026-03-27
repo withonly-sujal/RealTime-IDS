@@ -13,7 +13,7 @@ from sklearn.metrics import (
 # LOAD RESULTS
 
 BASE_DIR = path.Path(__file__).resolve().parent.parent
-RESULTS_PATH = BASE_DIR / "results" / "predictions_with_labels.csv"
+RESULTS_PATH = BASE_DIR / "inference_pipeline_results" / "predictions_with_labels_balanced_DS_1.csv"
 df = pd.read_csv(RESULTS_PATH)
 
 y_true = df["True_Label"]
