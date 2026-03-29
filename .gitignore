@@ -42,3 +42,7 @@ models/
 
 # Inference results
 inference_pipeline_results/
+
+# Real_Time_IDS
+src/Real_Time_IDS/__pycache__/
+src/Real_Time_IDS
