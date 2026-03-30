@@ -8,7 +8,7 @@ import pathlib as path
 BASE_DIR = path.Path(__file__).resolve().parent.parent
 
 MODEL_PATH = BASE_DIR / "models" / "IDS_Stacking_LogisticRegression.pkl"
-INPUT_PATH = BASE_DIR / "data" / "processed" / "test_processed.csv"
+INPUT_PATH = BASE_DIR / "data" / "processed" / "train_processed.csv"
 
 
 # LOAD MODEL
@@ -105,7 +105,7 @@ results = pd.DataFrame({
     "Probability": y_prob
 })
 
-OUTPUT_PATH = BASE_DIR / "inference_pipeline_results" / "predictions_test_DS.csv"
+OUTPUT_PATH = BASE_DIR / "inference_pipeline_results" / "predictions_with_labels_imbalanced_DS.csv"
 results.to_csv(OUTPUT_PATH, index=False)
 
 print("\nSample Predictions:")
