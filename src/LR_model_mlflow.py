@@ -1,3 +1,5 @@
+# In case pipeline Fail Revert Back to this Version and then make changes
+
 import joblib
 import pandas as pd
 import numpy as np
@@ -14,33 +16,24 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Base models
-XGB_PROCESSED_PATH = BASE_DIR / "saved_models" / "IDS_XGBoost_Model_v7.pkl"  # on 5 dropped dataset
-XGB_SELECTED_PATH = BASE_DIR / "saved_models" / "IDS_XGBoost_Model_v6.pkl"   # on original selected dataset
+XGB_PROCESSED_PATH = BASE_DIR / "saved_models" / "IDS_XGBoost_Model_v3.pkl"
+XGB_SELECTED_PATH = BASE_DIR / "saved_models" / "IDS_XGBoost_Model_v6.pkl"
 
-MLP_PROCESSED_PATH = BASE_DIR / "saved_models" / "IDS_MLP_Model_v5.pkl"  # on 5 dropped dataset
-MLP_SELECTED_PATH = BASE_DIR / "saved_models" / "IDS_MLP_Model_v3.pkl"   # on original selected dataset
+MLP_PROCESSED_PATH = BASE_DIR / "saved_models" / "IDS_MLP_Model_v1.pkl"
+MLP_SELECTED_PATH = BASE_DIR / "saved_models" / "IDS_MLP_Model_v3.pkl"
 
-# Balanced Datasets (for XGB)
-TRAIN_PROCESSED = BASE_DIR / "data" / "processed" / "train_processed_balanced_5dropped.csv"
+# Datasets
+TRAIN_PROCESSED = BASE_DIR / "data" / "processed" / "train_processed_balanced.csv"
 TRAIN_SELECTED = BASE_DIR / "data" / "processed" / "train_selected_balanced.csv"
-
-# Imbalanced Datasets (for MLP)
-TRAIN_PROCESSED_IMB = BASE_DIR / "data" / "processed" / "train_processed_5dropped.csv"
-TRAIN_SELECTED_IMB = BASE_DIR / "data" / "processed" / "train_selected.csv"
 
 TEST_PROCESSED = BASE_DIR / "data" / "processed" / "test_processed.csv"
 TEST_SELECTED = BASE_DIR / "data" / "processed" / "test_selected.csv"
 
 
-# LOAD Balanced DS for XGB
+# LOAD DATA
 train_proc = pd.read_csv(TRAIN_PROCESSED)
 train_sel = pd.read_csv(TRAIN_SELECTED)
 
-# LOAD Imbalanced DS for MLP
-train_proc_imb = pd.read_csv(TRAIN_PROCESSED_IMB)
-train_sel_imb = pd.read_csv(TRAIN_SELECTED_IMB)
-
-# Load Test Datasets
 test_proc = pd.read_csv(TEST_PROCESSED)
 test_sel = pd.read_csv(TEST_SELECTED)
 
@@ -177,7 +170,7 @@ with mlflow.start_run(run_name="Stack_LogisticRegression_FINAL"):
 # SAVE FINAL MODEL
 os.makedirs(BASE_DIR / "saved_models", exist_ok=True)
 
-final_model_path = BASE_DIR / "saved_models" / "IDS_Stacking_LogisticRegression_v2.pkl"
+final_model_path = BASE_DIR / "saved_models" / "IDS_Stacking_LogisticRegression.pkl"
 
 features_proc = X_train_proc.columns.tolist()
 features_sel = X_train_sel.columns.tolist()
