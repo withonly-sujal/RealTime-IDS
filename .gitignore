@@ -38,11 +38,10 @@ mlflow.db
 mlflow.db/
 
 # Models
-models/
+saved_models/
 
 # Inference results
 inference_pipeline_results/
 
 # Real_Time_IDS
-src/Real_Time_IDS/__pycache__/
-src/Real_Time_IDS
+Real_Time_IDS/

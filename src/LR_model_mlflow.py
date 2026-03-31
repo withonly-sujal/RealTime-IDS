@@ -14,15 +14,18 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Base models
-XGB_PROCESSED_PATH = BASE_DIR / "models" / "IDS_XGBoost_Model_v3.pkl"
-XGB_SELECTED_PATH = BASE_DIR / "models" / "IDS_XGBoost_Model_v6.pkl"
+XGB_PROCESSED_PATH = BASE_DIR / "saved_models" / "IDS_XGBoost_Model_v7.pkl"
+XGB_SELECTED_PATH = BASE_DIR / "saved_models" / "IDS_XGBoost_Model_v6.pkl"
 
-MLP_PROCESSED_PATH = BASE_DIR / "models" / "IDS_MLP_Model_v1.pkl"
-MLP_SELECTED_PATH = BASE_DIR / "models" / "IDS_MLP_Model_v3.pkl"
+MLP_PROCESSED_PATH = BASE_DIR / "saved_models" / "IDS_MLP_Model_v1.pkl"
+MLP_SELECTED_PATH = BASE_DIR / "saved_models" / "IDS_MLP_Model_v3.pkl"
 
 # Datasets
 TRAIN_PROCESSED = BASE_DIR / "data" / "processed" / "train_processed_balanced.csv"
 TRAIN_SELECTED = BASE_DIR / "data" / "processed" / "train_selected_balanced.csv"
+
+TRAIN_PROCESSED_IMBALANCED = BASE_DIR / "data" / "processed" / "train_processed.csv"
+TRAIN_SELECTED_IMBALANCED = BASE_DIR / "data" / "processed" / "train_selected.csv"
 
 TEST_PROCESSED = BASE_DIR / "data" / "processed" / "test_processed.csv"
 TEST_SELECTED = BASE_DIR / "data" / "processed" / "test_selected.csv"
@@ -166,9 +169,9 @@ with mlflow.start_run(run_name="Stack_LogisticRegression_FINAL"):
 
 
 # SAVE FINAL MODEL
-os.makedirs(BASE_DIR / "models", exist_ok=True)
+os.makedirs(BASE_DIR / "saved_models", exist_ok=True)
 
-final_model_path = BASE_DIR / "models" / "IDS_Stacking_LogisticRegression.pkl"
+final_model_path = BASE_DIR / "saved_models" / "IDS_Stacking_LogisticRegression_v2.pkl"
 
 features_proc = X_train_proc.columns.tolist()
 features_sel = X_train_sel.columns.tolist()
