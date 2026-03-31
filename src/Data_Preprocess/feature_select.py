@@ -3,7 +3,7 @@ from pathlib import Path
 from sklearn.ensemble import RandomForestClassifier
 
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 TRAIN_PATH = BASE_DIR / "data" / "processed" / "train_processed.csv"
 TEST_PATH = BASE_DIR / "data" / "processed" / "test_processed.csv"
 

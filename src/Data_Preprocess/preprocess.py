@@ -4,7 +4,7 @@ from pathlib import Path
 from sklearn.preprocessing import LabelEncoder
 
 # Paths
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 TRAIN_PATH = BASE_DIR / "data" / "raw" / "UNSW_NB15_training-set.csv"
 TEST_PATH = BASE_DIR / "data" / "raw" / "UNSW_NB15_testing-set.csv"
 

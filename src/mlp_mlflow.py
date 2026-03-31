@@ -45,7 +45,7 @@ def get_next_model_version(model_name="IDS_MLP_Model"):
 
 # Dataset Path
 BASE_DIR = Path(__file__).resolve().parent.parent
-TRAIN_PATH = BASE_DIR / "data" / "processed" / "train_processed_5dropped.csv"  # change dataset here
+TRAIN_PATH = BASE_DIR / "data" / "processed" / "train_selected.csv"  # change dataset here
 
 
 # Load Dataset

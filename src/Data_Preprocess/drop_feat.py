@@ -3,9 +3,9 @@
 import pandas as pd
 import pathlib as Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-INPUT_PATH = BASE_DIR / "data" / "processed" / "train_processed.csv"
-OUTPUT_PATH = BASE_DIR / "data" / "processed" / "train_processed_5dropped.csv"
+BASE_DIR = Path.Path(__file__).resolve().parent.parent.parent
+INPUT_PATH = BASE_DIR / "data" / "processed" / "train_processed_balanced.csv"
+OUTPUT_PATH = BASE_DIR / "data" / "processed" / "train_processed_balanced_5dropped.csv"
 
 # ==== CONFIG ====
 input_path = INPUT_PATH

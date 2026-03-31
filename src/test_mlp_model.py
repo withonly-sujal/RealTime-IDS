@@ -27,7 +27,7 @@ MODEL_PATH = args.model
 
 # Dataset Path
 BASE_DIR = Path(__file__).resolve().parent.parent
-TEST_PATH = BASE_DIR / "data" / "processed" / "test_selected.csv"
+TEST_PATH = BASE_DIR / "data" / "processed" / "test_processed_5dropped.csv"
 
 
 # ---------------------------

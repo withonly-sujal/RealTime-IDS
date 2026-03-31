@@ -36,7 +36,7 @@ def get_next_model_version(model_name="IDS_XGBoost_Model"):
 
 # Dataset Path
 BASE_DIR = Path(__file__).resolve().parent.parent
-TRAIN_PATH = BASE_DIR / "data" / "processed" / "train_processed_balanced_5dropped.csv" # change the training dataset here
+TRAIN_PATH = BASE_DIR / "data" / "processed" / "train_selected_balanced.csv" # change the training dataset here
 
 # Load Dataset
 print("Loading dataset...")

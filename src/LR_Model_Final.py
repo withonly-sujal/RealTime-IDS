@@ -10,71 +10,68 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix
 
 
-# PATHS
+# ================= PATHS =================
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Base models
-XGB_PROCESSED_PATH = BASE_DIR / "saved_models" / "IDS_XGBoost_Model_v7.pkl"  # on 5 dropped dataset
-XGB_SELECTED_PATH = BASE_DIR / "saved_models" / "IDS_XGBoost_Model_v6.pkl"   # on original selected dataset
+# Models
+XGB_PROCESSED_PATH = BASE_DIR / "saved_models" / "IDS_XGBoost_Model_v7.pkl"
+XGB_SELECTED_PATH = BASE_DIR / "saved_models" / "IDS_XGBoost_Model_v6.pkl"
 
-MLP_PROCESSED_PATH = BASE_DIR / "saved_models" / "IDS_MLP_Model_v5.pkl"  # on 5 dropped dataset
-MLP_SELECTED_PATH = BASE_DIR / "saved_models" / "IDS_MLP_Model_v3.pkl"   # on original selected dataset
+MLP_PROCESSED_PATH = BASE_DIR / "saved_models" / "IDS_MLP_Model_v1.pkl"
+MLP_SELECTED_PATH = BASE_DIR / "saved_models" / "IDS_MLP_Model_v3.pkl"
 
-# Balanced Datasets (for XGB)
-TRAIN_PROCESSED = BASE_DIR / "data" / "processed" / "train_processed_balanced_5dropped.csv"
-TRAIN_SELECTED = BASE_DIR / "data" / "processed" / "train_selected_balanced.csv"
-
-# Imbalanced Datasets (for MLP)
+# DATASETS
+# Imbalanced (MAIN dataset for split)
 TRAIN_PROCESSED_IMB = BASE_DIR / "data" / "processed" / "train_processed_5dropped.csv"
-TRAIN_SELECTED_IMB = BASE_DIR / "data" / "processed" / "train_selected.csv"
+TRAIN_SELECTED_IMB = BASE_DIR / "data" / "processed" / "train_selected_5dropped.csv"
 
+# Balanced (ONLY for XGB training reference, not splitting)
+TRAIN_PROCESSED_BAL = BASE_DIR / "data" / "processed" / "train_processed_balanced_5dropped.csv"
+TRAIN_SELECTED_BAL = BASE_DIR / "data" / "processed" / "train_selected_balanced_5dropped.csv"
+
+# Test
 TEST_PROCESSED = BASE_DIR / "data" / "processed" / "test_processed.csv"
 TEST_SELECTED = BASE_DIR / "data" / "processed" / "test_selected.csv"
 
 
-# LOAD Balanced DS for XGB
-train_proc = pd.read_csv(TRAIN_PROCESSED)
-train_sel = pd.read_csv(TRAIN_SELECTED)
+# ================= LOAD DATA =================
 
-# LOAD Imbalanced DS for MLP
+# Imbalanced (used for splitting + MLP)
 train_proc_imb = pd.read_csv(TRAIN_PROCESSED_IMB)
 train_sel_imb = pd.read_csv(TRAIN_SELECTED_IMB)
 
-# Load Test Datasets
+# Balanced (only for feature reference)
+train_proc_bal = pd.read_csv(TRAIN_PROCESSED_BAL)
+train_sel_bal = pd.read_csv(TRAIN_SELECTED_BAL)
+
+# Test
 test_proc = pd.read_csv(TEST_PROCESSED)
 test_sel = pd.read_csv(TEST_SELECTED)
 
-print("Label alignment:", (train_proc["label"] == train_sel["label"]).all())
 
-X_train_proc = train_proc.drop(columns=["label"])
-y_train = train_proc["label"]
+# ================= SPLIT (ONLY ON IMBALANCED) =================
 
-X_train_sel = train_sel.drop(columns=["label"])
+X_proc = train_proc_imb.drop(columns=["label"])
+X_sel = train_sel_imb.drop(columns=["label"])
+y = train_proc_imb["label"]
 
-X_test_proc = test_proc.drop(columns=["label"])
-y_test = test_proc["label"]
-
-X_test_sel = test_sel.drop(columns=["label"])
-
-
-# SPLIT (NO DATA LEAKAGE)
 X_tr_proc, X_val_proc, y_tr, y_val = train_test_split(
-    X_train_proc, y_train, test_size=0.2, random_state=42
+    X_proc, y, test_size=0.2, random_state=42
 )
 
 X_tr_sel, X_val_sel, _, _ = train_test_split(
-    X_train_sel, y_train, test_size=0.2, random_state=42
+    X_sel, y, test_size=0.2, random_state=42
 )
 
 
+# ================= LOAD MODELS =================
 
-# LOAD MODELS
-
-# XGB
+# XGB (trained on balanced already)
 xgb_proc = joblib.load(XGB_PROCESSED_PATH)
 xgb_sel = joblib.load(XGB_SELECTED_PATH)
 
-# MLP
+# MLP (trained on imbalanced)
 mlp_proc_loaded = joblib.load(MLP_PROCESSED_PATH)
 mlp_sel_loaded = joblib.load(MLP_SELECTED_PATH)
 
@@ -85,19 +82,22 @@ mlp_sel = mlp_sel_loaded["model"]
 scaler_sel = mlp_sel_loaded["scaler"]
 
 
+# ================= VALIDATION PREDICTIONS =================
 
-# VALIDATION PREDICTIONS
+# XGB (works fine on normal validation)
 xgb_proc_val = xgb_proc.predict_proba(X_val_proc)[:, 1]
 xgb_sel_val = xgb_sel.predict_proba(X_val_sel)[:, 1]
 
+# MLP (needs scaling)
 X_val_proc_scaled = scaler_proc.transform(X_val_proc)
 X_val_sel_scaled = scaler_sel.transform(X_val_sel)
 
-mlp_proc_val = mlp_proc.predict(X_val_proc_scaled).ravel()
-mlp_sel_val = mlp_sel.predict(X_val_sel_scaled).ravel()
+mlp_proc_val = mlp_proc.predict_proba(X_val_proc_scaled)[:, 1]
+mlp_sel_val = mlp_sel.predict_proba(X_val_sel_scaled)[:, 1]
 
 
-# STACK FEATURES
+# ================= STACK =================
+
 stack_val = np.column_stack([
     xgb_proc_val,
     xgb_sel_val,
@@ -106,30 +106,35 @@ stack_val = np.column_stack([
 ])
 
 
-# META MODEL (ONLY LR)
+# ================= META MODEL =================
+
 meta_model = LogisticRegression()
 
-
-# MLFLOW
 mlflow.set_experiment("IDS_Stacking_Final")
 
 with mlflow.start_run(run_name="Stack_LogisticRegression_FINAL"):
 
     print("\nTraining Logistic Regression meta model...")
 
-    # Train
     meta_model.fit(stack_val, y_val)
 
 
-    # TEST PREDICTIONS
+    # ================= TEST =================
+
+    X_test_proc = test_proc.drop(columns=["label"])
+    X_test_sel = test_sel.drop(columns=["label"])
+    y_test = test_proc["label"]
+
+    # XGB
     xgb_proc_test = xgb_proc.predict_proba(X_test_proc)[:, 1]
     xgb_sel_test = xgb_sel.predict_proba(X_test_sel)[:, 1]
 
+    # MLP
     X_test_proc_scaled = scaler_proc.transform(X_test_proc)
     X_test_sel_scaled = scaler_sel.transform(X_test_sel)
 
-    mlp_proc_test = mlp_proc.predict(X_test_proc_scaled).ravel()
-    mlp_sel_test = mlp_sel.predict(X_test_sel_scaled).ravel()
+    mlp_proc_test = mlp_proc.predict_proba(X_test_proc_scaled)[:, 1]
+    mlp_sel_test = mlp_sel.predict_proba(X_test_sel_scaled)[:, 1]
 
     stack_test = np.column_stack([
         xgb_proc_test,
@@ -142,21 +147,20 @@ with mlflow.start_run(run_name="Stack_LogisticRegression_FINAL"):
     y_pred = (y_prob > 0.5).astype(int)
 
 
-    # METRICS
+    # ================= METRICS =================
+
     accuracy = accuracy_score(y_test, y_pred)
     precision = precision_score(y_test, y_pred)
     recall = recall_score(y_test, y_pred)
     f1 = f1_score(y_test, y_pred)
     roc_auc = roc_auc_score(y_test, y_prob)
-    cm = confusion_matrix(y_test, y_pred)
 
-    tn, fp, fn, tp = cm.ravel()
+    tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
 
     print("Accuracy:", accuracy)
     print("F1:", f1)
 
 
-    # MLFLOW LOGGING
     mlflow.log_param("meta_model", "LogisticRegression")
 
     mlflow.log_metric("accuracy", accuracy)
@@ -174,13 +178,15 @@ with mlflow.start_run(run_name="Stack_LogisticRegression_FINAL"):
     mlflow.log_metric("FAR", fp / (fp + tn))
 
 
-# SAVE FINAL MODEL
+# ================= SAVE =================
+
 os.makedirs(BASE_DIR / "saved_models", exist_ok=True)
 
 final_model_path = BASE_DIR / "saved_models" / "IDS_Stacking_LogisticRegression_v2.pkl"
 
-features_proc = X_train_proc.columns.tolist()
-features_sel = X_train_sel.columns.tolist()
+# IMPORTANT: save feature order
+features_proc = train_proc_bal.columns.tolist()
+features_sel = train_sel_bal.columns.tolist()
 
 joblib.dump({
     "meta_model": meta_model,
