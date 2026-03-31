@@ -28,9 +28,9 @@ from sklearn.model_selection import train_test_split
 
 # Helper function for model versioning
 def get_next_model_version(model_name="IDS_MLP_Model"):
-    os.makedirs("models", exist_ok=True)
+    os.makedirs("saved_models", exist_ok=True)
     versions = []
-    for file in os.listdir("models"):
+    for file in os.listdir("saved_models"):
         if file.startswith(model_name) and file.endswith(".pkl"):
             try:
                 v = int(file.split("_v")[-1].replace(".pkl", ""))
@@ -45,7 +45,7 @@ def get_next_model_version(model_name="IDS_MLP_Model"):
 
 # Dataset Path
 BASE_DIR = Path(__file__).resolve().parent.parent
-TRAIN_PATH = BASE_DIR / "data" / "processed" / "train_selected_balanced.csv"  # change dataset here
+TRAIN_PATH = BASE_DIR / "data" / "processed" / "train_processed_5dropped.csv"  # change dataset here
 
 
 # Load Dataset
@@ -233,7 +233,7 @@ with mlflow.start_run():
     version = get_next_model_version("IDS_MLP_Model")
 
     model_filename = f"IDS_MLP_Model_v{version}.pkl"
-    model_path = os.path.join("models", model_filename)
+    model_path = os.path.join("saved_models", model_filename)
 
     joblib.dump({
     "model": model,
