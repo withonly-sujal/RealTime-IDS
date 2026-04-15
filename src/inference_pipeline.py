@@ -7,7 +7,7 @@ import pathlib as path
 # PATHS
 BASE_DIR = path.Path(__file__).resolve().parent.parent
 
-MODEL_PATH = BASE_DIR / "models" / "IDS_Stacking_LogisticRegression.pkl"
+MODEL_PATH = BASE_DIR / "saved_models" / "IDS_Stacking_LogisticRegression.pkl"
 INPUT_PATH = BASE_DIR / "data" / "processed" / "train_processed.csv"
 
 
@@ -80,10 +80,10 @@ mlp_sel_prob = mlp_sel.predict(X_sel_scaled).ravel()
 
 
 stack_input = np.column_stack([
-    xgb_proc_prob,
-    xgb_sel_prob,
-    mlp_proc_prob,
-    mlp_sel_prob
+    0.4 * xgb_proc_prob,
+    0.4 * xgb_sel_prob,
+    0.1 * mlp_proc_prob,
+    0.1 * mlp_sel_prob
 ])
 
 
@@ -93,7 +93,7 @@ print("Running stacking model...")
 
 y_prob = meta_model.predict_proba(stack_input)[:, 1]
 
-threshold = 0.4
+threshold = 0.6
 y_pred = (y_prob > threshold).astype(int)
 
 
