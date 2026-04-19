@@ -44,4 +44,12 @@ saved_models/
 inference_pipeline_results/
 
 # Real_Time_IDS
-Real_Time_IDS/
+
+
+# Dashboard
+dashboard/
+dashboard/_build/
+dashboard/__pycache__/
+dashboard/dist/
+
+.env
