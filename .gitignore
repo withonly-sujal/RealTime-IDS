@@ -47,9 +47,9 @@ inference_pipeline_results/
 
 
 # Dashboard
-dashboard/
 dashboard/_build/
 dashboard/__pycache__/
 dashboard/dist/
+dashboard/__init__.py
 
 .env

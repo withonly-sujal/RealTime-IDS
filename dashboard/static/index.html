@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Real-Time Network Intrusion Detection System Dashboard">
+    <title>Real-Time IDS Dashboard</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/static/styles.css?v=2">
+</head>
+
+<body>
+    <div class="dashboard-container">
+
+        <!-- ═══════════ HEADER ═══════════ -->
+        <header class="header" id="header">
+            <div class="header-left">
+                <div class="logo-container">
+                    <div class="logo-icon">⚡</div>
+                </div>
+                <div class="header-text">
+                    <h1>Real-Time IDS</h1>
+                    <p class="subtitle">Network Intrusion Detection System</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="status-badge" id="status-badge">
+                    <span class="status-dot" id="status-dot"></span>
+                    <span class="status-text" id="status-text">Connecting...</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+
+            <!-- ═══════════ KPI CARDS ═══════════ -->
+            <section class="kpi-section" id="kpi-section">
+                <div class="kpi-card" id="kpi-packets">
+                    <div class="kpi-icon-wrap kpi-icon-blue">
+                        <span class="kpi-icon">📡</span>
+                    </div>
+                    <div class="kpi-data">
+                        <div class="kpi-value" id="val-packets">0</div>
+                        <div class="kpi-label">Total Packets</div>
+                    </div>
+                </div>
+
+                <div class="kpi-card" id="kpi-flows">
+                    <div class="kpi-icon-wrap kpi-icon-cyan">
+                        <span class="kpi-icon">🔄</span>
+                    </div>
+                    <div class="kpi-data">
+                        <div class="kpi-value" id="val-flows">0</div>
+                        <div class="kpi-label">Active Flows</div>
+                    </div>
+                </div>
+
+                <div class="kpi-card kpi-card-attack" id="kpi-attacks">
+                    <div class="kpi-icon-wrap kpi-icon-red">
+                        <span class="kpi-icon">🚨</span>
+                    </div>
+                    <div class="kpi-data">
+                        <div class="kpi-value" id="val-attacks">0</div>
+                        <div class="kpi-label">Attacks Detected</div>
+                    </div>
+                </div>
+
+                <div class="kpi-card" id="kpi-normal">
+                    <div class="kpi-icon-wrap kpi-icon-green">
+                        <span class="kpi-icon">✅</span>
+                    </div>
+                    <div class="kpi-data">
+                        <div class="kpi-value" id="val-normal">0</div>
+                        <div class="kpi-label">Normal Flows</div>
+                    </div>
+                </div>
+
+                <div class="kpi-card" id="kpi-adr">
+                    <div class="kpi-icon-wrap kpi-icon-amber">
+                        <span class="kpi-icon">📊</span>
+                    </div>
+                    <div class="kpi-data">
+                        <div class="kpi-value"><span id="val-adr">0</span>%</div>
+                        <div class="kpi-label">Attack Rate</div>
+                    </div>
+                </div>
+
+                <div class="kpi-card" id="kpi-uptime">
+                    <div class="kpi-icon-wrap kpi-icon-purple">
+                        <span class="kpi-icon">⏱️</span>
+                    </div>
+                    <div class="kpi-data">
+                        <div class="kpi-value" id="val-uptime">00:00:00</div>
+                        <div class="kpi-label">Uptime</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════════ CHARTS ═══════════ -->
+            <section class="charts-section">
+                <div class="card chart-card chart-wide" id="chart-timeline-card">
+                    <div class="card-header">
+                        <h3>Attack Timeline</h3>
+                        <span class="card-badge badge-info" id="timeline-count">0 predictions</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="chart-timeline"></canvas>
+                    </div>
+                </div>
+
+                <div class="card chart-card chart-narrow" id="chart-protocol-card">
+                    <div class="card-header">
+                        <h3>Protocol Distribution</h3>
+                    </div>
+                    <div class="chart-body chart-body-doughnut">
+                        <canvas id="chart-protocol"></canvas>
+                    </div>
+                </div>
+
+                <div class="card chart-card chart-wide" id="chart-probability-card">
+                    <div class="card-header">
+                        <h3>Probability Distribution</h3>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="chart-probability"></canvas>
+                    </div>
+                </div>
+
+                <div class="card chart-card chart-narrow" id="chart-ip-card">
+                    <div class="card-header">
+                        <h3>Top Source IPs</h3>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="chart-ips"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════════ DETECTIONS TABLE ═══════════ -->
+            <section class="table-section">
+                <div class="card table-card" id="table-card">
+                    <div class="card-header">
+                        <h3>Recent Detections</h3>
+                        <span class="card-badge badge-info" id="detection-count">0 total</span>
+                    </div>
+                    <div class="table-wrapper">
+                        <table id="detections-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Source</th>
+                                    <th>Destination</th>
+                                    <th>Protocol</th>
+                                    <th>Status</th>
+                                    <th>Probability</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detections-body">
+                                <tr class="empty-row">
+                                    <td colspan="6">Waiting for detections...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════════ ALERT LOG ═══════════ -->
+            <section class="log-section">
+                <div class="card log-card" id="log-card">
+                    <div class="card-header">
+                        <h3>Alert Log</h3>
+                        <button class="btn-clear" id="btn-clear-log">Clear</button>
+                    </div>
+                    <div class="log-content" id="alert-log">
+                        <div class="log-entry log-info">
+                            <span class="log-time">--:--:--</span>
+                            <span class="log-msg">Waiting for IDS to start...</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- ═══════════ FEATURE MODAL ═══════════ -->
+        <div class="modal-overlay" id="feature-modal-overlay">
+            <div class="modal" id="feature-modal">
+                <div class="modal-header">
+                    <h3>Flow Features</h3>
+                    <button class="modal-close" id="modal-close">&times;</button>
+                </div>
+                <div class="modal-body" id="feature-modal-body">
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════ AI CHAT WIDGET ═══════════ -->
+        <div class="chat-widget">
+            <button class="chat-fab" id="chat-fab" title="Chat with AI" aria-label="Open AI Chat">
+                <span class="chat-fab-icon">🤖</span>
+            </button>
+
+            <div class="chat-panel" id="chat-panel">
+                <div class="chat-header">
+                    <div class="chat-header-info">
+                        <h3>IDS AI Assistant</h3>
+                    </div>
+                    <button class="chat-close" id="chat-close">&times;</button>
+                </div>
+
+                <div class="chat-body" id="chat-messages">
+                    <div class="chat-msg msg-ai">
+                        <div class="msg-bubble">
+                            Hello! I'm your IDS Assistant. How can I help you analyze the network traffic today?
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-footer">
+                    <input type="text" class="chat-input" id="chat-input" placeholder="Ask about network activity..." />
+                    <button class="chat-send" id="chat-send" title="Send" aria-label="Send Message">
+                        <span>➤</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Ensure marked.js is included for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="/static/dashboard.js?v=2"></script>
+</body>
+
+</html>
